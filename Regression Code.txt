@@ -1,0 +1,31 @@
+import CreateML
+
+//import data, we this could also be where we import from some external location
+let data = try MLDataTable(contentsOf: URL(fileURLWithPath: "Path here"))
+
+//split data into a training and testing set
+let (trainingData, testingData) = data.randomSplit(by: 0.8)
+
+
+/*
+*A note on this: The targetColumn bit is assuming that our data is organized in a certain way such as this.
+*However, that assumption is based on the MLDataTable, thus one of our tasks is getting our data in a format
+*like so.
+*/
+//implement a linear regressor
+let heartratePredictor = try MLLinearRegressor(trainingData: trainingData, targetColumn: "value")
+
+//this will evaluate the model over the testing data
+let evaluationMetrics = heartratePredictor.evaluation(on: testingData)
+
+print(evaluationMetrics.maximumError)
+
+/*
+* This bit will show how to save a model.
+*/
+
+//set metadata
+let metadata = MLModel(author: "Josh", shortDescription: "A regression model", version: "0.1")
+
+//write to something. This could also be where we send it to some external location.
+try heartratePredictor.write(to: URL(fileURLWithPath: "Path here"), metadata: metadata)
